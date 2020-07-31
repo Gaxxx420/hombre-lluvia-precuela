@@ -53,23 +53,24 @@ public class PlayerWarp : MonoBehaviour
         WarpMovement();
     }
 
-    public void Launch(){
+    public void Launch(float y){
         if (currentWarpPoint == null){
             currentLifeTime = lifeTime;
             currentWarpPoint = Instantiate(prefabWarpoint, transform.position, transform.rotation);
             warpPointRigidbody = currentWarpPoint.GetComponent<Rigidbody>();
-            Vector3 currentDirection = new Vector3(transform.forward.x * launchDirection.x, launchDirection.y).normalized;
-            currentWarpPoint.GetComponent<Rigidbody>().AddForce(currentDirection * launchForce,ForceMode.Impulse);
+            Vector3 currentDirection = new Vector3(transform.forward.x * launchDirection.x, launchDirection.y + y);
+            Debug.Log(currentDirection);
+            currentWarpPoint.GetComponent<Rigidbody>().AddForce(currentDirection.normalized * launchForce,ForceMode.Impulse);
         }
         else{
             onWarp = true;
             usedWarp = true;
+            transform.rotation = currentWarpPoint.transform.rotation;
         }
     }
     private void Warp(){
         if (onWarp){
-            if(currentWarpPoint != null && Vector3.Distance(currentWarpPoint.transform.position, transform.position) <= .5f){
-                transform.rotation = currentWarpPoint.transform.rotation;
+            if(currentWarpPoint != null && Vector3.Distance(currentWarpPoint.transform.position, transform.position) <= .5f){               
                 usedWarp = true;
                 Destroy(currentWarpPoint.gameObject);
                 currentWarpPoint = null;

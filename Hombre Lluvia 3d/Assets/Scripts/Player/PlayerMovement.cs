@@ -22,7 +22,7 @@ public class PlayerMovement : MonoBehaviour
         accelerationTime = Mathf.Pow(accelerationTime, -1);
         airAccelerationTime = Mathf.Pow(airAccelerationTime, -1);
         direction = 1;
-        Flip(false);
+        Flip();
     }
 
     public void MovementUpdate(float horAxis){
@@ -34,7 +34,7 @@ public class PlayerMovement : MonoBehaviour
         Acceleration(horAxis);
         if (wasFacingRight != FacingRight())
         {
-            Flip(false);
+            Flip();
         }
     }
     public void WallJumpUpdate(float horAxis)
@@ -66,11 +66,7 @@ public class PlayerMovement : MonoBehaviour
         
         accelerationIndex = Mathf.Clamp(accelerationIndex, 0, 1); 
     }
-    public void Flip(bool forceFlip){
-        if (forceFlip)
-        {
-            direction = -direction;
-        }
+    public void Flip(){
         accelerationIndex = 0f;
         transform.rotation = Quaternion.Euler(0, 90 * direction, 0);
         wasFacingRight = FacingRight();
@@ -119,4 +115,10 @@ public class PlayerMovement : MonoBehaviour
     private bool FacingRight(){
         return direction > 0;
     }    
+
+    public void fixedDirection(float desiredDirection){
+        direction = desiredDirection;
+        transform.rotation = Quaternion.Euler(0, 90 * direction, 0);
+        wasFacingRight = FacingRight();
+    }
 }

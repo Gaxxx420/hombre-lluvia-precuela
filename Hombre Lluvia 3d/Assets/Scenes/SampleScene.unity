@@ -493,7 +493,7 @@ GameObject:
   - component: {fileID: 125524655}
   - component: {fileID: 125524654}
   - component: {fileID: 125524653}
-  m_Layer: 8
+  m_Layer: 10
   m_Name: Platform (1)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -876,7 +876,7 @@ ParticleSystem:
       serializedVersion: 2
       minMaxState: 0
       minColor: {r: 1, g: 1, b: 1, a: 1}
-      maxColor: {r: 0.8207547, g: 0.365101, b: 0, a: 1}
+      maxColor: {r: 0.9372549, g: 0.3882353, b: 0.12941177, a: 1}
       maxGradient:
         serializedVersion: 2
         key0: {r: 1, g: 1, b: 1, a: 1}
@@ -5350,7 +5350,7 @@ Mesh:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: pb_Mesh15768
+  m_Name: pb_Mesh22394
   serializedVersion: 10
   m_SubMeshes:
   - serializedVersion: 2
@@ -5614,7 +5614,7 @@ GameObject:
   - component: {fileID: 330278993}
   - component: {fileID: 330278992}
   - component: {fileID: 330278991}
-  m_Layer: 8
+  m_Layer: 10
   m_Name: Platform (2)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -6323,7 +6323,7 @@ Mesh:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: pb_Mesh15796
+  m_Name: pb_Mesh22430
   serializedVersion: 10
   m_SubMeshes:
   - serializedVersion: 2
@@ -6591,7 +6591,7 @@ GameObject:
   - component: {fileID: 951674044}
   - component: {fileID: 951674047}
   - component: {fileID: 951674046}
-  m_Layer: 8
+  m_Layer: 10
   m_Name: Platform
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -6893,7 +6893,7 @@ Mesh:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: pb_Mesh15808
+  m_Name: pb_Mesh22442
   serializedVersion: 10
   m_SubMeshes:
   - serializedVersion: 2
@@ -7151,7 +7151,7 @@ Mesh:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: pb_Mesh15756
+  m_Name: pb_Mesh22382
   serializedVersion: 10
   m_SubMeshes:
   - serializedVersion: 2
@@ -7467,7 +7467,7 @@ MonoBehaviour:
   detectionSize: {x: 0.9, y: 0.2, z: 1}
   walkableLayer:
     serializedVersion: 2
-    m_Bits: 256
+    m_Bits: 1280
   onLandEvent:
     m_PersistentCalls:
       m_Calls:
@@ -7510,6 +7510,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0d797e3a264c7bc41a1c91674186f07d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  axis: {x: 0, y: 0}
   myCamera: {fileID: 0}
   currentState: 0
 --- !u!114 &1223873019
@@ -7528,7 +7529,7 @@ MonoBehaviour:
   WallMask:
     serializedVersion: 2
     m_Bits: 512
-  wallJumpForce: 75
+  wallJumpForce: 76
   wallJumpVector: {x: 1, y: 3}
 --- !u!114 &1223873020
 MonoBehaviour:
@@ -7583,8 +7584,8 @@ MonoBehaviour:
     type: 3}
   warpSpeed: 30
   onWarp: 0
-  lifeTime: 1.5
-  launchDirection: {x: 1, y: 1}
+  lifeTime: 1
+  launchDirection: {x: 1, y: 1.5}
   usedWarp: 0
   destroyers:
     serializedVersion: 2
@@ -9068,7 +9069,7 @@ ParticleSystem:
       serializedVersion: 2
       minMaxState: 0
       minColor: {r: 1, g: 1, b: 1, a: 1}
-      maxColor: {r: 0.58339775, g: 0.3224012, b: 0.5943396, a: 1}
+      maxColor: {r: 0.9372549, g: 0.3882353, b: 0.12941177, a: 1}
       maxGradient:
         serializedVersion: 2
         key0: {r: 1, g: 1, b: 1, a: 1}

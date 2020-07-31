@@ -14,7 +14,7 @@ public class PlayerBrain : MonoBehaviour
     private PlayerWarp myWarp;
     private PlayerVisuals myVisuals;
     private Collider myCollider;
-    private Vector2 Axis;
+    public Vector2 axis;
     public Cinemachine.CinemachineVirtualCamera myCamera;
     public int currentState;
     private enum stateNames
@@ -66,7 +66,7 @@ public class PlayerBrain : MonoBehaviour
         }
     }
     private void SetAxis(){
-        Axis = new Vector2(myInputs.horAxis, myInputs.verAxis);
+        axis = new Vector2(myInputs.horAxis, myInputs.verAxis);
     }
     public void OnLand(){
         myMovement.OnLandMovement();
@@ -78,7 +78,7 @@ public class PlayerBrain : MonoBehaviour
         if (myInputs.jumpPerformed && !myFloorDetection.Grounded() && myWallJump.onWall()){
             myWallJump.wallJump(transform.forward.x);
             myInputs.jumpPerformed = false;
-            myMovement.Flip(true);
+            myMovement.fixedDirection(-transform.forward.x);
             SetState(myStates[stateNames.OnWallJump]);
         }
         else{
@@ -95,7 +95,7 @@ public class PlayerBrain : MonoBehaviour
         if (myInputs.warpPerformed){
             if (!myWarp.usedWarp)
             {
-                myWarp.Launch();
+                myWarp.Launch(axis.y);
             }
             myInputs.warpPerformed = false;
         }
@@ -123,11 +123,18 @@ public class PlayerBrain : MonoBehaviour
     }
     void WarpUpdate(){
         if (!myWarp.onWarp){
+            if (axis.x != 0)
+            {
+                myMovement.fixedDirection(axis.x);
+            }
+            else
+            {
+                myMovement.fixedDirection(transform.forward.x);
+            }
             myCollider.isTrigger = false;
             myVisuals.SetParticles(false, 1);
             myVisuals.myRenderer.SetActive(true);
-            SetState(myStates[stateNames.Movement]);
-            myMovement.direction = transform.forward.x;
+            SetState(myStates[stateNames.Movement]);          
         }
     }
 }
