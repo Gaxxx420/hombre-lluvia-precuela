@@ -121,4 +121,9 @@ public class PlayerMovement : MonoBehaviour
         transform.rotation = Quaternion.Euler(0, 90 * direction, 0);
         wasFacingRight = FacingRight();
     }
+
+    public void RestartAcceleration()
+    {
+        accelerationIndex = 0;
+    }
 }

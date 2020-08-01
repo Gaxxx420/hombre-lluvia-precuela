@@ -40,6 +40,7 @@ public class PlayerDash : MonoBehaviour
     public void DashStart(){
         onDash = true;
         usedDash = true;
+        myRigidbody.velocity = Vector3.zero;
         myRigidbody.drag = dragValue;
         myRigidbody.useGravity = false;      
         myRigidbody.velocity += transform.forward * dashForce;

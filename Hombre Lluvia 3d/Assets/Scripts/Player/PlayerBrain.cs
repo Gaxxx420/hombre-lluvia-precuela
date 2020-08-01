@@ -44,7 +44,7 @@ public class PlayerBrain : MonoBehaviour
         }
     }
     private void Update(){
-        displayValue.text = myFloorDetection.Grounded().ToString();
+        displayValue.text = currentState.ToString();
         SetAxis();
         if (currentState == myStates[stateNames.Movement]){
             MovementUpdate();
@@ -79,6 +79,7 @@ public class PlayerBrain : MonoBehaviour
     }
     void MovementUpdate(){
         if (myInputs.jumpPerformed && !myFloorDetection.Grounded() && myWallJump.onWall()){
+            myMovement.RestartAcceleration();
             myWallJump.wallJump(transform.forward.x);
             myInputs.jumpPerformed = false;
             myMovement.fixedDirection(-transform.forward.x);
@@ -90,6 +91,7 @@ public class PlayerBrain : MonoBehaviour
         if (myInputs.dashPerformed){
             if (myDash.CanDash()){
                 SetState(myStates[stateNames.OnDash]);
+                myMovement.RestartAcceleration();
                 myVisuals.SetParticles(true, 0);
                 myDash.DashStart();
             }
@@ -104,6 +106,7 @@ public class PlayerBrain : MonoBehaviour
         }
         if (myWarp.onWarp){
             myCollider.isTrigger = true;
+            myMovement.RestartAcceleration();
             SetState(myStates[stateNames.OnWarp]);
             myVisuals.SetParticles(true, 1);
             myVisuals.myRenderer.SetActive(false);

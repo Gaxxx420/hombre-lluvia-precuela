@@ -4,13 +4,11 @@ using UnityEngine;
 
 public class PlayerWarp : MonoBehaviour
 {
-    public float launchForce;
+    public float launchForce, warpSpeed, lifeTime, stopTime;
     public WarpPoint prefabWarpoint;
-    public float warpSpeed;
     public bool onWarp;
-    public float lifeTime;
-    public Vector2 launchDirection;
     public bool usedWarp;
+    public Vector2 launchDirection; 
     public LayerMask destroyers;
     private float currentLifeTime;
     private Rigidbody myRigidbody;
@@ -40,9 +38,7 @@ public class PlayerWarp : MonoBehaviour
                 currentWarpPoint = null;
             }
             if (currentLifeTime <= 0){
-                destroyPoint = currentWarpPoint.transform.position;
-                Destroy(currentWarpPoint.gameObject);
-                currentWarpPoint = null;
+                StartCoroutine(DestroyWarp());
             }         
         }
         if(myFloorDetection.Grounded() && usedWarp){
@@ -58,7 +54,7 @@ public class PlayerWarp : MonoBehaviour
             currentLifeTime = lifeTime;
             currentWarpPoint = Instantiate(prefabWarpoint, transform.position, transform.rotation);
             warpPointRigidbody = currentWarpPoint.GetComponent<Rigidbody>();
-            Vector3 currentDirection = new Vector3(transform.forward.x * launchDirection.x, launchDirection.y + y);
+            Vector3 currentDirection = new Vector3(transform.forward.x * launchDirection.x, launchDirection.y + y/2);
             Debug.Log(currentDirection);
             currentWarpPoint.GetComponent<Rigidbody>().AddForce(currentDirection.normalized * launchForce,ForceMode.Impulse);
         }
@@ -94,5 +90,36 @@ public class PlayerWarp : MonoBehaviour
                 myRigidbody.velocity = direction * warpSpeed;
             }          
         }      
+    }
+
+    private IEnumerator DestroyWarp()
+    {
+        if(currentWarpPoint != null)
+        {
+            warpPointRigidbody.velocity = Vector3.zero;
+            warpPointRigidbody.useGravity = false;
+            yield return new WaitForSeconds(stopTime);
+        }
+        else
+        {
+            StopAllCoroutines();
+        }
+        if(currentWarpPoint != null)
+        {
+            currentWarpPoint.GetComponentInChildren<ParticleSystem>().Stop();
+            yield return new WaitForSeconds(currentWarpPoint.GetComponentInChildren<ParticleSystem>().main.startLifetime.constant);
+        }
+        else
+        {
+            StopAllCoroutines();
+        }
+        if (currentWarpPoint != null)
+        {
+            Debug.Log(currentWarpPoint.GetComponentInChildren<ParticleSystem>().main.startLifetime.constant);
+            destroyPoint = currentWarpPoint.transform.position;
+            Destroy(currentWarpPoint.gameObject);
+            currentWarpPoint = null;
+            StopAllCoroutines();
+        }       
     }
 }
