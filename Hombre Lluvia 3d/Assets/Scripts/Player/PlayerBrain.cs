@@ -2,6 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class PlayerBrain : MonoBehaviour
 {
@@ -17,6 +18,7 @@ public class PlayerBrain : MonoBehaviour
     public Vector2 axis;
     public Cinemachine.CinemachineVirtualCamera myCamera;
     public int currentState;
+    public Text displayValue;
     private enum stateNames
     {
         Movement,
@@ -42,6 +44,7 @@ public class PlayerBrain : MonoBehaviour
         }
     }
     private void Update(){
+        displayValue.text = myFloorDetection.Grounded().ToString();
         SetAxis();
         if (currentState == myStates[stateNames.Movement]){
             MovementUpdate();

@@ -25,7 +25,7 @@ public class FloorDetection : MonoBehaviour
 
     public bool Grounded(){
         Collider[] groundcheck = Physics.OverlapBox(groundCheck.position, detectionSize / 2, Quaternion.identity, walkableLayer);
-        return groundcheck.Length != 0 && myRigidbody.velocity.y <= 0;
+        return groundcheck.Length != 0 && myRigidbody.velocity.y <= .1f;
     }
 
     private void Update(){

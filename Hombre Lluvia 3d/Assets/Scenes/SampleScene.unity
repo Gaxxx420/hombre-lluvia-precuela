@@ -420,7 +420,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!224 &119002815
 RectTransform:
   m_ObjectHideFlags: 0
@@ -7513,6 +7513,7 @@ MonoBehaviour:
   axis: {x: 0, y: 0}
   myCamera: {fileID: 0}
   currentState: 0
+  displayValue: {fileID: 119002816}
 --- !u!114 &1223873019
 MonoBehaviour:
   m_ObjectHideFlags: 0
