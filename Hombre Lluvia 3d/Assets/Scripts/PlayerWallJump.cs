@@ -17,7 +17,7 @@ public class PlayerWallJump : MonoBehaviour
 
     public bool onWall()
     {
-        return Physics.OverlapBox(wallCheck.position, Vector3.one / 2, Quaternion.identity, WallMask).Length != 0;
+        return Physics.OverlapBox(wallCheck.position, Vector3.one / 4, Quaternion.identity, WallMask).Length != 0;
     }
 
     public void wallJump(float direction)
@@ -29,7 +29,7 @@ public class PlayerWallJump : MonoBehaviour
 
     private void OnDrawGizmos()
     {
-        Gizmos.DrawWireCube(wallCheck.position, Vector3.one);
+        Gizmos.DrawWireCube(wallCheck.position, Vector3.one/2);
         Gizmos.DrawLine(transform.position, transform.position + 2.5f * new Vector3(-transform.forward.x * wallJumpVector.x, wallJumpVector.y, 0).normalized);
     }
 }

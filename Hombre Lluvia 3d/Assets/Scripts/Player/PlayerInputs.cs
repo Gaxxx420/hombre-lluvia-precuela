@@ -10,7 +10,7 @@ public class PlayerInputs : MonoBehaviour
     public float horAxis {get; private set;}
     public float verAxis;
     public bool jumpPerformed;
-    public bool jumpHeld {get; private set;}
+    public bool jumpHeld; 
     public bool dashPerformed;
     public bool warpPerformed;
     public Vector2 menu;

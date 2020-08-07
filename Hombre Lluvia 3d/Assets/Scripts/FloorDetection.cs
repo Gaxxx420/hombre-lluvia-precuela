@@ -5,27 +5,33 @@ using UnityEngine.Events;
 
 public class FloorDetection : MonoBehaviour
 {
-    [SerializeField] private Transform groundCheck;
-    [SerializeField] private Vector3 detectionSize;
-    [SerializeField] private LayerMask walkableLayer;
-    private Rigidbody myRigidbody;
-    private Collider myCollider;
+    [SerializeField] private Transform groundCheck,ceilingCheck;
+    [SerializeField] private Vector3 floorDetectionSize, ceilingDetectionSize;
+    [SerializeField] private LayerMask walkableLayer, ceilingLayer;
+    private Rigidbody myRigidbody;  
     private bool wasGrounded;
     public UnityEvent onLandEvent;
     public UnityEvent onLeaveLandEvent;
+    public Collider[] myColliders;
     public int nColliders;
     public bool drop;
 
+
     private void Start(){
         myRigidbody = GetComponent<Rigidbody>();
-        myCollider = GetComponent<Collider>();
         drop = false;
         wasGrounded = Grounded();
     }
 
     public bool Grounded(){
-        Collider[] groundcheck = Physics.OverlapBox(groundCheck.position, detectionSize / 2, Quaternion.identity, walkableLayer);
+        Collider[] groundcheck = Physics.OverlapBox(groundCheck.position, floorDetectionSize / 2, Quaternion.identity, walkableLayer);
         return groundcheck.Length != 0 && myRigidbody.velocity.y <= .1f;
+    }
+
+    public bool UnderCeiling()
+    {
+        Collider[] ceilingcheck = Physics.OverlapBox(ceilingCheck.position, ceilingDetectionSize / 2, Quaternion.identity, ceilingLayer);
+        return ceilingcheck.Length != 0 && Grounded();
     }
 
     private void Update(){
@@ -45,15 +51,40 @@ public class FloorDetection : MonoBehaviour
         }
     }
     void Stomp(){
-        Collider[] detection = Physics.OverlapBox(groundCheck.position-Vector3.up/8, (detectionSize + Vector3.up/4)/2, Quaternion.identity, walkableLayer);
+        Collider[] detection = Physics.OverlapBox(groundCheck.position-Vector3.up/4, (floorDetectionSize + Vector3.up/2)/2, Quaternion.identity, walkableLayer);
         for (int i = 0; i < detection.Length; i++){
-            if (detection[i].GetComponent<IStompable>() != null){
-                detection[i].GetComponent<IStompable>().Stomped(myCollider,drop);
+            if (detection[i].GetComponent<IStompable>() != null){               
+                foreach(Collider n in myColliders)
+                {
+                    detection[i].GetComponent<IStompable>().Stomped(n, drop);
+                }
             }
         }
     }
+
+    public bool OnPlatform()
+    {
+        Collider[] detection = Physics.OverlapBox(groundCheck.position - Vector3.up / 4, (floorDetectionSize + Vector3.up / 2) / 2, Quaternion.identity, walkableLayer);
+        int n=0;
+        for (int i = 0; i < detection.Length; i++)
+        {
+            if (detection[i].GetComponent<IStompable>() != null)
+            {
+                n++;
+            }
+        }
+        if (n != 0)
+        {
+            return true;
+        }
+        else
+        {
+            return false;
+        }
+    }
     private void OnDrawGizmos(){
-        Gizmos.DrawWireCube(groundCheck.position, detectionSize);
-        Gizmos.DrawWireCube(groundCheck.position - Vector3.up/8, detectionSize + Vector3.up/4);
+        Gizmos.DrawWireCube(groundCheck.position, floorDetectionSize);
+        Gizmos.DrawWireCube(ceilingCheck.position, ceilingDetectionSize);
+        Gizmos.DrawWireCube(groundCheck.position - Vector3.up/4, floorDetectionSize + Vector3.up/2);
     }
 }

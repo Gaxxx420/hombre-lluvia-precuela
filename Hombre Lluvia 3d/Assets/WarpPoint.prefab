@@ -61,6 +61,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5e32cb8005e9f1a4ab8b638d41b68997, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  stopped: 0
+  accesible: 0
+  myParticles: {fileID: 6374503751517280558}
+  destroyers:
+    serializedVersion: 2
+    m_Bits: 0
 --- !u!1 &6374503751517280557
 GameObject:
   m_ObjectHideFlags: 0
@@ -1304,7 +1310,7 @@ ParticleSystem:
     curve:
       serializedVersion: 2
       minMaxState: 0
-      scalar: 0.7853982
+      scalar: 6.283185
       minScalar: 0.7853982
       maxCurve:
         serializedVersion: 2
@@ -1428,9 +1434,9 @@ ParticleSystem:
     fps: 30
     frameOverTime:
       serializedVersion: 2
-      minMaxState: 1
-      scalar: 0.9999
-      minScalar: 0.9999
+      minMaxState: 3
+      scalar: 0
+      minScalar: 0
       maxCurve:
         serializedVersion: 2
         m_Curve:
@@ -1481,8 +1487,8 @@ ParticleSystem:
         m_RotationOrder: 4
     startFrame:
       serializedVersion: 2
-      minMaxState: 0
-      scalar: 0
+      minMaxState: 3
+      scalar: 0.9999
       minScalar: 0
       maxCurve:
         serializedVersion: 2
@@ -1533,7 +1539,7 @@ ParticleSystem:
         m_PostInfinity: 2
         m_RotationOrder: 4
     speedRange: {x: 0, y: 1}
-    tilesX: 1
+    tilesX: 28
     tilesY: 1
     animationType: 0
     rowIndex: 0
@@ -4770,8 +4776,8 @@ ParticleSystemRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 10308, guid: 0000000000000000f000000000000000, type: 0}
-  - {fileID: 0}
+  - {fileID: 2100000, guid: b626caa677da39940a246bbf28a92cf8, type: 2}
+  - {fileID: 2100000, guid: b626caa677da39940a246bbf28a92cf8, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0

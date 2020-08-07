@@ -14,7 +14,7 @@ public class PlayerBrain : MonoBehaviour
     private Rigidbody myRigidbody;
     private PlayerWarp myWarp;
     private PlayerVisuals myVisuals;
-    private Collider myCollider;
+    public Collider topCollider, bottomCollider;
     public Vector2 axis;
     public Cinemachine.CinemachineVirtualCamera myCamera;
     public int currentState;
@@ -24,9 +24,13 @@ public class PlayerBrain : MonoBehaviour
         Movement,
         OnWallJump,
         OnDash,
-        OnWarp
+        OnWarp,
+        OnCrouch
+       
     }
     private Dictionary<stateNames, int> myStates = new Dictionary<stateNames, int>();
+    //-------------------------------------------
+    public Transform body;
     private void Start(){
         myRigidbody = GetComponent<Rigidbody>();
         myFloorDetection = GetComponent<FloorDetection>();
@@ -36,7 +40,6 @@ public class PlayerBrain : MonoBehaviour
         myDash = GetComponent<PlayerDash>();
         myVisuals = GetComponent<PlayerVisuals>();
         myWarp = GetComponent<PlayerWarp>();
-        myCollider = GetComponent<Collider>();
         int nStates = Enum.GetValues(typeof(stateNames)).Length;
         for(int i = 0; i<nStates; i++){
             stateNames value = (stateNames)i;
@@ -44,7 +47,6 @@ public class PlayerBrain : MonoBehaviour
         }
     }
     private void Update(){
-        displayValue.text = currentState.ToString();
         SetAxis();
         if (currentState == myStates[stateNames.Movement]){
             MovementUpdate();
@@ -58,9 +60,14 @@ public class PlayerBrain : MonoBehaviour
         else if(currentState == myStates[stateNames.OnWarp]){
             WarpUpdate();
         }   
+        else if(currentState == myStates[stateNames.OnCrouch])
+        {
+            CrouchUpdate();
+        }
     }
     private void FixedUpdate(){
-        if (currentState == myStates[stateNames.Movement]){
+        if (currentState == myStates[stateNames.Movement] || currentState == myStates[stateNames.OnCrouch])
+        {
             myMovement.MovementFixedUpdate(myInputs.jumpPerformed, myInputs.jumpHeld, myInputs.verAxis);
             myInputs.jumpPerformed = false;
         }
@@ -70,32 +77,23 @@ public class PlayerBrain : MonoBehaviour
     }
     private void SetAxis(){
         axis = new Vector2(myInputs.horAxis, myInputs.verAxis);
-    }
-    public void OnLand(){
-        myMovement.OnLandMovement();
-    }
-    void SetState(int newState){
-        currentState = newState;
-    }
+    }   
     void MovementUpdate(){
+        if (axis.y < -0.9f)
+        {
+            if (myFloorDetection.Grounded())
+            {
+                ToCrouch();
+            }          
+        }  
         if (myInputs.jumpPerformed && !myFloorDetection.Grounded() && myWallJump.onWall()){
-            myMovement.RestartAcceleration();
-            myWallJump.wallJump(transform.forward.x);
-            myInputs.jumpPerformed = false;
-            myMovement.fixedDirection(-transform.forward.x);
-            SetState(myStates[stateNames.OnWallJump]);
+            ToWallJump();
         }
         else{
             myMovement.MovementUpdate(myInputs.horAxis);
         }
         if (myInputs.dashPerformed){
-            if (myDash.CanDash()){
-                SetState(myStates[stateNames.OnDash]);
-                myMovement.RestartAcceleration();
-                myVisuals.SetParticles(true, 0);
-                myDash.DashStart();
-            }
-            myInputs.dashPerformed = false;
+            ToDash();
         }
         if (myInputs.warpPerformed){
             if (!myWarp.usedWarp)
@@ -105,12 +103,8 @@ public class PlayerBrain : MonoBehaviour
             myInputs.warpPerformed = false;
         }
         if (myWarp.onWarp){
-            myCollider.isTrigger = true;
-            myMovement.RestartAcceleration();
-            SetState(myStates[stateNames.OnWarp]);
-            myVisuals.SetParticles(true, 1);
-            myVisuals.myRenderer.SetActive(false);
-        }
+            ToWarp();
+        }       
     }
     void WallJumpUpdate(){
         myMovement.WallJumpUpdate(myInputs.horAxis);
@@ -119,12 +113,23 @@ public class PlayerBrain : MonoBehaviour
         }
     }
     void DashUpdate(){
-        if (myRigidbody.drag <= 0){
+        myInputs.jumpPerformed = false;
+        if (!myDash.onDash){
             myDash.DashEnd();
             myRigidbody.drag = 0;
-            myRigidbody.useGravity = true;
-            SetState(myStates[stateNames.Movement]);
+            myRigidbody.useGravity = true;         
             myVisuals.SetParticles(false, 0);
+            if (!myFloorDetection.UnderCeiling())
+            {
+                activateColliders(true, true);
+                changeSize(false);
+                SetState(myStates[stateNames.Movement]);
+            }
+            else
+            {
+                ToCrouch();
+                SetState(myStates[stateNames.OnCrouch]);
+            }
         }
     }
     void WarpUpdate(){
@@ -137,10 +142,103 @@ public class PlayerBrain : MonoBehaviour
             {
                 myMovement.fixedDirection(transform.forward.x);
             }
-            myCollider.isTrigger = false;
             myVisuals.SetParticles(false, 1);
             myVisuals.myRenderer.SetActive(true);
+            activateColliders(true,true);
             SetState(myStates[stateNames.Movement]);          
+        }
+    }
+    void CrouchUpdate()
+    {
+        myMovement.MovementUpdate(0);
+        if ((!myFloorDetection.UnderCeiling() && axis.y >= 0) || !myFloorDetection.Grounded())
+        {
+            activateColliders(true, true);
+            changeSize(false);
+            SetState(myStates[stateNames.Movement]);
+        }
+        if (myInputs.dashPerformed)
+        {
+            ToDash();
+        }
+        if (myInputs.warpPerformed)
+        {
+            if (!myWarp.usedWarp && !myFloorDetection.UnderCeiling())
+            {
+                myWarp.Launch(axis.y);
+            }
+            myInputs.warpPerformed = false;
+        }
+        if (myWarp.onWarp)
+        {
+            body.localScale = new Vector3(1, 1.5f, 1);
+            ToWarp();
+        }
+    }
+
+    public void OnLand()
+    {
+        myMovement.OnLandMovement();
+        myDash.onLandDash();
+    }
+    void SetState(int newState)
+    {
+        currentState = newState;
+    }
+    void activateColliders(bool top, bool bottom)
+    {
+        topCollider.isTrigger = !top;
+        bottomCollider.isTrigger = !bottom;
+    }
+
+    void ToWarp()
+    {
+        activateColliders(false, false);
+        myMovement.RestartAcceleration();
+        SetState(myStates[stateNames.OnWarp]);
+        myVisuals.SetParticles(true, 1);
+        myVisuals.myRenderer.SetActive(false);
+    }
+    void ToDash()
+    {
+        if (myDash.CanDash())
+        {
+            activateColliders(false, true);
+            changeSize(true);
+            myMovement.RestartAcceleration();
+            myVisuals.SetParticles(true, 0);
+            myDash.DashStart();
+            SetState(myStates[stateNames.OnDash]);
+        }
+        myInputs.dashPerformed = false;
+        
+    }
+    void ToWallJump()
+    {
+        myMovement.RestartAcceleration();
+        myWallJump.wallJump(transform.forward.x);
+        myInputs.jumpPerformed = false;
+        myMovement.fixedDirection(-transform.forward.x);
+        SetState(myStates[stateNames.OnWallJump]);
+    }
+    void ToCrouch()
+    {
+        activateColliders(false, true);
+        changeSize(true);
+        SetState(myStates[stateNames.OnCrouch]);
+    }
+
+    void changeSize(bool shrink)
+    {
+        if (shrink)
+        {
+            body.localScale = new Vector3(1, .75f, 1);
+            body.localPosition = new Vector3(0, -.75f, 0);
+        }
+        else
+        {
+            body.localScale = new Vector3(1, 1.5f, 1);
+            body.localPosition = new Vector3(0, 0, 0);
         }
     }
 }

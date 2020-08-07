@@ -61,7 +61,7 @@ public class PlayerMovement : MonoBehaviour
         }
         else
         {
-            accelerationIndex += (moveInput ? airAccelerationTime : -airAccelerationTime) * Time.deltaTime;
+            accelerationIndex += (moveInput ? airAccelerationTime : -accelerationTime) * Time.deltaTime;
         }
         
         accelerationIndex = Mathf.Clamp(accelerationIndex, 0, 1); 
@@ -83,7 +83,7 @@ public class PlayerMovement : MonoBehaviour
     }
     private void Jump(bool jumpPerformed, float verAxis){
         if (jumpPerformed){
-            if (verAxis < 0){
+            if (verAxis < 0 && myFloorDetection.OnPlatform()){
                 myFloorDetection.drop = true;
             }
             else{

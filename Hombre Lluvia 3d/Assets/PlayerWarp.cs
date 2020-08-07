@@ -4,12 +4,14 @@ using UnityEngine;
 
 public class PlayerWarp : MonoBehaviour
 {
-    public float launchForce, warpSpeed, lifeTime, stopTime;
+    public float launchForce, warpSpeed, lifeTime, stopTime, maxDistance;
     public WarpPoint prefabWarpoint;
     public bool onWarp;
     public bool usedWarp;
     public Vector2 launchDirection; 
     public LayerMask destroyers;
+    public Transform spawnPoint;
+    private bool stoped;
     private float currentLifeTime;
     private Rigidbody myRigidbody;
     private Rigidbody warpPointRigidbody;
@@ -25,21 +27,25 @@ public class PlayerWarp : MonoBehaviour
         Warp();
         if (currentWarpPoint != null){
             Collider[] checkCollision = Physics.OverlapBox(currentWarpPoint.transform.position, Vector3.one,Quaternion.identity, destroyers);
+            if (checkCollision.Length != 0 || currentLifeTime <= 0 || Vector3.Distance(currentWarpPoint.transform.position, transform.position) > maxDistance)
+            {             
+                if (!currentWarpPoint.stopped)
+                {
+                    StartCoroutine(currentWarpPoint.DestroyWarp(stopTime));
+                    destroyPoint = currentWarpPoint.transform.position;
+                }
+            }
             if (!onWarp){
                 currentLifeTime -= Time.deltaTime;
             }
             else{
                 warpPointRigidbody.velocity = Vector3.zero;
                 warpPointRigidbody.useGravity = false;
-            }
-            if (checkCollision.Length != 0){
-                destroyPoint = currentWarpPoint.transform.position;
-                Destroy(currentWarpPoint.gameObject);
+            }         
+            if (!currentWarpPoint.accesible)
+            {
                 currentWarpPoint = null;
             }
-            if (currentLifeTime <= 0){
-                StartCoroutine(DestroyWarp());
-            }         
         }
         if(myFloorDetection.Grounded() && usedWarp){
             usedWarp = false;
@@ -52,16 +58,16 @@ public class PlayerWarp : MonoBehaviour
     public void Launch(float y){
         if (currentWarpPoint == null){
             currentLifeTime = lifeTime;
-            currentWarpPoint = Instantiate(prefabWarpoint, transform.position, transform.rotation);
+            currentWarpPoint = Instantiate(prefabWarpoint, spawnPoint.position, transform.rotation);
             warpPointRigidbody = currentWarpPoint.GetComponent<Rigidbody>();
             Vector3 currentDirection = new Vector3(transform.forward.x * launchDirection.x, launchDirection.y + y/2);
-            Debug.Log(currentDirection);
             currentWarpPoint.GetComponent<Rigidbody>().AddForce(currentDirection.normalized * launchForce,ForceMode.Impulse);
         }
         else{
             onWarp = true;
             usedWarp = true;
             transform.rotation = currentWarpPoint.transform.rotation;
+            StopCoroutine(currentWarpPoint.DestroyWarp(stopTime));
         }
     }
     private void Warp(){
@@ -76,6 +82,7 @@ public class PlayerWarp : MonoBehaviour
             if(currentWarpPoint == null && Vector3.Distance(destroyPoint, transform.position) <= .5f){
                 myRigidbody.velocity = Vector3.zero;
                 onWarp = false;
+                usedWarp = true;
             }         
         }
     }
@@ -92,34 +99,8 @@ public class PlayerWarp : MonoBehaviour
         }      
     }
 
-    private IEnumerator DestroyWarp()
+    private void OnDrawGizmos()
     {
-        if(currentWarpPoint != null)
-        {
-            warpPointRigidbody.velocity = Vector3.zero;
-            warpPointRigidbody.useGravity = false;
-            yield return new WaitForSeconds(stopTime);
-        }
-        else
-        {
-            StopAllCoroutines();
-        }
-        if(currentWarpPoint != null)
-        {
-            currentWarpPoint.GetComponentInChildren<ParticleSystem>().Stop();
-            yield return new WaitForSeconds(currentWarpPoint.GetComponentInChildren<ParticleSystem>().main.startLifetime.constant);
-        }
-        else
-        {
-            StopAllCoroutines();
-        }
-        if (currentWarpPoint != null)
-        {
-            Debug.Log(currentWarpPoint.GetComponentInChildren<ParticleSystem>().main.startLifetime.constant);
-            destroyPoint = currentWarpPoint.transform.position;
-            Destroy(currentWarpPoint.gameObject);
-            currentWarpPoint = null;
-            StopAllCoroutines();
-        }       
+        Gizmos.DrawWireSphere(transform.position, maxDistance);
     }
 }
